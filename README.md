@@ -122,10 +122,8 @@ open MyClaude.app
 当前 Release 为 arm64；Intel 用户请从源码构建（`build.sh` 会按本机架构编译）
 
 ## 🙏 致谢
-
-- 界面灵感来自社区的 MyCodex 用量工具
 - 图标为 [Clawd](https://www.starkinsider.com/2025/10/clawd-ai-retro-mascot-command-line.html)——Claude Code 官方像素吉祥物的手工复刻
-- 由 [Claude Code](https://claude.com/claude-code) 构建 🤖
+- 由 [Claude Code](https://claude.com/claude-code) 辅助完成 🤖
 
 ## 📄 License
 
