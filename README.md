@@ -4,10 +4,9 @@
 
 # MyClaude
 
-**macOS 菜单栏上的 Claude Code 用量仪表盘 · 液态玻璃风格**
+**macOS 菜单栏上的 Claude Code 用量仪表盘**
 
-实时统计你的 Claude Code token 消耗——今日 / 本周 / 近90天热力图 / 模型分布 / 5小时窗口 / 缓存命中率，
-全部渲染在一块透出壁纸的毛玻璃面板上。
+实时统计你的 Claude Code token 消耗——今日 / 本周 / 近90天热力图 / 模型分布 / 5小时窗口 / 缓存命中率。
 
 `Swift` · `SwiftUI` · `零依赖` · `完全本地` · `v1.0`
 
@@ -120,6 +119,7 @@ open MyClaude.app
 
 **Intel Mac 能用吗？**
 当前 Release 为 arm64；Intel 用户请从源码构建（`build.sh` 会按本机架构编译）
+（后续更新可能会支持）
 
 ## 🙏 致谢
 - 图标为 [Clawd](https://www.starkinsider.com/2025/10/clawd-ai-retro-mascot-command-line.html)——Claude Code 官方像素吉祥物的手工复刻
