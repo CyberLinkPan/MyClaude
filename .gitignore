@@ -1,0 +1,7 @@
+# 构建产物
+MyClaude.app/
+MyClaude.zip
+toolchain-fix/
+
+# macOS
+.DS_Store
