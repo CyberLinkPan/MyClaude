@@ -11,7 +11,7 @@
 
 `Swift` · `SwiftUI` · `零依赖` · `完全本地` · `v1.0`
 
-<img src="docs/dashboard.png" width="820" alt="主面板仪表盘">
+<img src="docs/dashboard-v1.png" width="820" alt="主面板仪表盘">
 
 </div>
 
@@ -50,7 +50,7 @@
 
 | 菜单栏面板 | 炫酷模块 |
 |---|---|
-| <img src="docs/popover.png" width="380"> | <img src="docs/modules.png" width="380"> |
+| <img src="docs/popover-v1.png" width="380"> | <img src="docs/modules.png" width="380"> |
 
 | 主题色：霓虹粉（默认） | 主题色：深海蓝 |
 |---|---|
