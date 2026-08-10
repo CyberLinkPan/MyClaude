@@ -63,5 +63,38 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
 </plist>
 EOF
 
-codesign --force -s - "$APP" 2>/dev/null || true
+# 用固定的自签名身份签名（ad-hoc 签名每次构建身份都变，
+# 会导致钥匙串反复弹出授权框；固定身份只需授权一次）
+IDENTITY="MyClaude Dev"
+if ! security find-identity -v -p codesigning 2>/dev/null | grep -q "$IDENTITY"; then
+    echo "创建自签名代码签名证书: $IDENTITY"
+    T=$(mktemp -d)
+    cat > "$T/conf" <<'CONF'
+[req]
+distinguished_name = dn
+x509_extensions = ext
+prompt = no
+[dn]
+CN = MyClaude Dev
+[ext]
+keyUsage = critical,digitalSignature
+extendedKeyUsage = critical,codeSigning
+basicConstraints = critical,CA:false
+CONF
+    openssl req -x509 -newkey rsa:2048 -keyout "$T/key.pem" -out "$T/cert.pem" \
+        -days 3650 -nodes -config "$T/conf" 2>/dev/null
+    # 直接导入 PEM（OpenSSL 3 的 p12 新算法 macOS 钥匙串不识别）
+    security import "$T/key.pem" -k ~/Library/Keychains/login.keychain-db \
+        -T /usr/bin/codesign >/dev/null || true
+    security import "$T/cert.pem" -k ~/Library/Keychains/login.keychain-db >/dev/null || true
+    security add-trusted-cert -p codeSign \
+        -k ~/Library/Keychains/login.keychain-db "$T/cert.pem" 2>/dev/null || true
+    rm -rf "$T"
+fi
+if security find-identity -v -p codesigning 2>/dev/null | grep -q "$IDENTITY"; then
+    codesign --force -s "$IDENTITY" "$APP" 2>/dev/null && echo "已用固定身份签名"
+else
+    codesign --force -s - "$APP" 2>/dev/null || true
+    echo "（自签证书不可用，回退 ad-hoc 签名）"
+fi
 echo "构建完成: $PWD/$APP"
