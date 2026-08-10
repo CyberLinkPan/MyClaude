@@ -176,18 +176,28 @@ struct LineChart: View {
     @State private var cometPhase = Double.random(in: 0..<8.0)
     @State private var cometRate = Double.random(in: 0.85...1.20)
     @Environment(\.fxEnabled) private var fx
+    @ObservedObject private var ui = UIActivity.shared
 
     var body: some View {
         let maxV = max(series.filter { $0 >= 0 }.max() ?? 0, ref?.max() ?? 0, 1)
         VStack(spacing: 3) {
             GeometryReader { geo in
-                if comet && fx && !gSnapshotMode {
-                    TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { ctx in
-                        chartBody(w: geo.size.width, h: geo.size.height, maxV: maxV,
-                                  time: ctx.date.timeIntervalSinceReferenceDate)
+                let w = geo.size.width, h = geo.size.height
+                let main = norm(series, maxV: maxV)
+                ZStack {
+                    // 静态底图（路径/阴影/渐变只画一次，不随动画重绘）
+                    staticChart(main, w: w, h: h)
+                    // 动画层只有彗星
+                    if comet {
+                        if fx && ui.animsActive && !gSnapshotMode {
+                            TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
+                                cometView(main, w: w, h: h,
+                                          time: ctx.date.timeIntervalSinceReferenceDate)
+                            }
+                        } else if gSnapshotMode {
+                            cometView(main, w: w, h: h, time: 3.5)
+                        }
                     }
-                } else {
-                    chartBody(w: geo.size.width, h: geo.size.height, maxV: maxV, time: 3.5)
                 }
             }
             .frame(height: height)
@@ -203,11 +213,10 @@ struct LineChart: View {
     }
 
     @ViewBuilder
-    private func chartBody(w: CGFloat, h: CGFloat, maxV: Double, time: Double) -> some View {
-        let main = norm(series, maxV: maxV)
+    private func staticChart(_ main: [Double?], w: CGFloat, h: CGFloat) -> some View {
         ZStack {
             if let r = ref {
-                chartPath(norm(r, maxV: maxV), w: w, h: h)
+                chartPath(norm(r, maxV: max(series.filter { $0 >= 0 }.max() ?? 0, r.max() ?? 0, 1)), w: w, h: h)
                     .stroke(Color.white.opacity(0.22),
                             style: StrokeStyle(lineWidth: 1.2, dash: [3, 3]))
             }
@@ -224,27 +233,24 @@ struct LineChart: View {
                     .shadow(color: P.accent, radius: 4)
                     .position(last)
             }
-            // 彗星光点（拖尾）
-            if comet && (fx || gSnapshotMode) {
-                cometView(main, w: w, h: h, time: time)
-            }
         }
     }
 
-    /// 彗星：白色高亮核心 + 泛光晕圈 + 7 节渐隐拖尾，沿曲线循环巡游（周期 8 秒）
+    /// 彗星：白色高亮核心 + 泛光晕圈 + 7 节渐隐拖尾，沿曲线循环巡游（周期 8 秒）。
+    /// 性能注意：光晕与柔边全部用径向渐变实现（blur 每帧需要离屏渲染，代价高一个量级）
     @ViewBuilder
     private func cometView(_ vals: [Double?], w: CGFloat, h: CGFloat, time: Double) -> some View {
         let p = pts(vals, w: w, h: h)
         if p.count > 1 {
             let f = (time * cometRate + cometPhase).truncatingRemainder(dividingBy: 8.0) / 8.0
             let head = pointAt(p, f)
-            // 外层泛光晕圈（柔光）
+            // 外层泛光晕圈（径向渐变柔光，无 blur）
             Circle()
-                .fill(P.accent.opacity(0.45))
-                .frame(width: 18, height: 18)
-                .blur(radius: 6)
+                .fill(RadialGradient(colors: [P.accent.opacity(0.55), P.accent.opacity(0)],
+                                     center: .center, startRadius: 0, endRadius: 13))
+                .frame(width: 26, height: 26)
                 .position(head)
-            // 拖尾（亮色，逐节缩小渐隐）
+            // 拖尾（亮色，逐节缩小渐隐；无阴影）
             ForEach(1..<8, id: \.self) { k in
                 let fk = max(0, f - Double(k) * 0.014)
                 let size: CGFloat = max(2, 6.0 - CGFloat(k) * 0.6)
@@ -252,16 +258,14 @@ struct LineChart: View {
                     .fill(P.hot)
                     .frame(width: size, height: size)
                     .opacity(max(0, 0.85 - Double(k) * 0.11))
-                    .shadow(color: P.accent.opacity(0.6), radius: 3)
                     .position(pointAt(p, fk))
             }
-            // 白色高亮核心（轮廓模糊 + 双层光晕，爆亮）
+            // 白色高亮核心（径向渐变柔边 + 单层光晕）
             Circle()
-                .fill(Color.white)
-                .frame(width: 8, height: 8)
-                .blur(radius: 1.4)
+                .fill(RadialGradient(colors: [.white, .white.opacity(0)],
+                                     center: .center, startRadius: 1.5, endRadius: 5.5))
+                .frame(width: 11, height: 11)
                 .shadow(color: P.hot, radius: 5)
-                .shadow(color: P.accent.opacity(0.9), radius: 12)
                 .position(head)
         }
     }
@@ -319,54 +323,54 @@ struct Bar: View {
     @State private var phase = Double.random(in: 0..<6.0)
     @State private var rate = Double.random(in: 0.80...1.30)
     @Environment(\.fxEnabled) private var fx
+    @ObservedObject private var ui = UIActivity.shared
 
     var body: some View {
         GeometryReader { geo in
-            if gSnapshotMode {
-                barBody(w: geo.size.width, time: 2.45)
-            } else if !fx {
-                barBody(w: geo.size.width, time: -1)   // 光效关闭：静态渲染
-            } else {
-                TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { ctx in
-                    barBody(w: geo.size.width, time: ctx.date.timeIntervalSinceReferenceDate)
+            let fillW = max(height, geo.size.width * CGFloat(min(1, max(0, fraction))))
+            ZStack(alignment: .leading) {
+                // 静态底层：轨道 + 填充（不随动画重绘）
+                Capsule().fill(P.track)
+                Capsule().fill(P.barGrad)
+                    .frame(width: fillW)
+                    .shadow(color: P.accent.opacity(0.6), radius: 3)
+                // 动画层只有巡游光点
+                if fraction > 0.02 {
+                    if gSnapshotMode {
+                        lightLayer(fillW: fillW, time: 2.45)
+                    } else if fx && ui.animsActive {
+                        TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
+                            lightLayer(fillW: fillW, time: ctx.date.timeIntervalSinceReferenceDate)
+                        }
+                    }
                 }
             }
         }
         .frame(height: height)
     }
 
-    /// 进度条 + 沿填充段巡游的模糊光点（拖尾限制在条内）
+    /// 巡游光点层（周期随长度缩放，恒定像素速度 ≈ 30px/s：长条慢悠悠，短条轻快）
     @ViewBuilder
-    private func barBody(w: CGFloat, time: Double) -> some View {
-        let fillW = max(height, w * CGFloat(min(1, max(0, fraction))))
-        // 周期随长度缩放（恒定像素速度 ≈ 30px/s）：长条慢悠悠，短条轻快
+    private func lightLayer(fillW: CGFloat, time: Double) -> some View {
         let period = Double(max(3.0, min(14.0, fillW / 30.0)))
         let prog = CGFloat((time * rate + phase).truncatingRemainder(dividingBy: period) / period)
         let x = fillW * prog
-        ZStack(alignment: .leading) {
-            Capsule().fill(P.track)
-            Capsule().fill(P.barGrad)
-                .frame(width: fillW)
-                .shadow(color: P.accent.opacity(0.6), radius: 3)
-            if fraction > 0.02 && time >= 0 {
-                // 光尾（裁剪在进度条形状内）
-                Rectangle()
-                    .fill(LinearGradient(colors: [.clear, .white.opacity(0.75)],
-                                         startPoint: .leading, endPoint: .trailing))
-                    .frame(width: 18, height: height)
-                    .offset(x: x - 18)
-                    .frame(width: fillW, alignment: .leading)
-                    .clipShape(Capsule())
-                // 模糊白光核心
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: height + 2, height: height + 2)
-                    .blur(radius: 1.2)
-                    .shadow(color: P.hot, radius: 4)
-                    .shadow(color: P.accent.opacity(0.8), radius: 8)
-                    .offset(x: x - (height + 2) / 2)
-            }
-        }
+        // 光尾（裁剪在进度条形状内）
+        Rectangle()
+            .fill(LinearGradient(colors: [.clear, .white.opacity(0.75)],
+                                 startPoint: .leading, endPoint: .trailing))
+            .frame(width: 18, height: height)
+            .offset(x: x - 18)
+            .frame(width: fillW, alignment: .leading)
+            .clipShape(Capsule())
+        // 柔边白光核心（径向渐变代替 blur，单层光晕）
+        Circle()
+            .fill(RadialGradient(colors: [.white, .white.opacity(0)],
+                                 center: .center,
+                                 startRadius: height * 0.25, endRadius: height * 0.75))
+            .frame(width: height + 4, height: height + 4)
+            .shadow(color: P.hot, radius: 4)
+            .offset(x: x - (height + 4) / 2)
     }
 }
 
@@ -399,19 +403,26 @@ struct HeatGrid: View {
     }
 
     @Environment(\.fxEnabled) private var fx
+    @ObservedObject private var ui = UIActivity.shared
+
+    private let labelW: CGFloat = 12   // 星期标签列固定宽度（保证闪光层坐标可计算）
 
     var body: some View {
-        if gSnapshotMode || !fx {
-            grid(time: 0)
+        if gSnapshotMode || !fx || !ui.animsActive {
+            gridBase
         } else {
-            // 亮格闪烁：每格独立的速度与相位，像星空呼吸
-            TimelineView(.animation(minimumInterval: 1.0 / 20.0)) { ctx in
-                grid(time: ctx.date.timeIntervalSinceReferenceDate)
+            // 静态格子 + Canvas 单层闪光：每帧只画正在闪的几个格子，不重建 90 个视图
+            gridBase.overlay(alignment: .topLeading) {
+                TimelineView(.animation(minimumInterval: 1.0 / 12.0)) { ctx in
+                    flashCanvas(time: ctx.date.timeIntervalSinceReferenceDate)
+                }
+                .allowsHitTesting(false)
             }
         }
     }
 
-    private func grid(time: Double) -> some View {
+    /// 静态底图（不随动画重绘）
+    private var gridBase: some View {
         let cols = columns
         return HStack(alignment: .top, spacing: gap) {
             // 星期标签
@@ -421,7 +432,7 @@ struct HeatGrid: View {
                     Text(["一", "二", "三", "四", "五", "六", "日"][r])
                         .font(.system(size: 8))
                         .foregroundStyle(r % 2 == 0 ? P.faint : .clear)
-                        .frame(height: cell)
+                        .frame(width: labelW, height: cell, alignment: .trailing)
                 }
             }
             ForEach(Array(cols.enumerated()), id: \.offset) { _, col in
@@ -432,14 +443,34 @@ struct HeatGrid: View {
                             .frame(height: 10)
                     }
                     ForEach(0..<7, id: \.self) { r in
-                        let f = flash(col[r], time)
                         RoundedRectangle(cornerRadius: cell * 0.28)
                             .fill(color(col[r]))
-                            .overlay(   // 白色高光：闪烁时格子明显提亮
-                                RoundedRectangle(cornerRadius: cell * 0.28)
-                                    .fill(Color.white.opacity(f * 0.85)))
-                            .shadow(color: P.hot.opacity(f), radius: cell * 0.45)   // 光晕脉冲
                             .frame(width: cell, height: cell)
+                    }
+                }
+            }
+        }
+    }
+
+    /// 闪光层：只绘制强度过阈值且当前正在闪亮的格子
+    private func flashCanvas(time: Double) -> some View {
+        let cols = columns
+        let x0 = labelW + gap
+        let y0: CGFloat = showMonths ? 10 + gap : 0
+        let step = cell + gap
+        return Canvas { g, _ in
+            for (ci, col) in cols.enumerated() {
+                for r in 0..<7 {
+                    let f = flash(col[r], time)
+                    guard f > 0.03 else { continue }
+                    let rect = CGRect(x: x0 + CGFloat(ci) * step,
+                                      y: y0 + CGFloat(r) * step,
+                                      width: cell, height: cell)
+                    let path = Path(roundedRect: rect, cornerRadius: cell * 0.28)
+                    g.drawLayer { layer in
+                        layer.addFilter(.shadow(color: .white.opacity(f * 0.9),
+                                                radius: cell * 0.45))
+                        layer.fill(path, with: .color(.white.opacity(f * 0.85)))
                     }
                 }
             }
@@ -1050,6 +1081,7 @@ struct PulseModule: View {
     let m: Metrics
     @State private var breathe = false
     @Environment(\.fxEnabled) private var fx
+    @ObservedObject private var ui = UIActivity.shared
     var body: some View {
         let maxV = max(m.minute60.max() ?? 1, 1)
         Card {
@@ -1069,10 +1101,10 @@ struct PulseModule: View {
                 Group {
                     if gSnapshotMode {
                         pulseBars(maxV, time: 2.45)
-                    } else if !fx {
+                    } else if !fx || !ui.animsActive {
                         pulseBars(maxV, time: -1)
                     } else {
-                        TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
+                        TimelineView(.animation(minimumInterval: 1.0 / 15.0)) { ctx in
                             pulseBars(maxV, time: ctx.date.timeIntervalSinceReferenceDate)
                         }
                     }
@@ -1187,6 +1219,7 @@ struct RoseModule: View {
     @ObservedObject private var theme = SettingsStore.shared
     let m: Metrics
     @Environment(\.fxEnabled) private var fx
+    @ObservedObject private var ui = UIActivity.shared
     private static let names = ["一", "二", "三", "四", "五", "六", "日"]
 
     private var maxV: Double { max(m.weekdayDist.max() ?? 1, 1) }
@@ -1236,7 +1269,7 @@ struct RoseModule: View {
                     Circle().stroke(Color.white.opacity(0.05), lineWidth: 1).frame(width: 58, height: 58)
                     ForEach(0..<7, id: \.self) { i in wedge(i) }
                     // 声呐光环：从扇心向扇缘扩散的光波，只在花瓣内可见
-                    if !gSnapshotMode && fx {
+                    if !gSnapshotMode && fx && ui.animsActive {
                         TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { ctx in
                             let t = ctx.date.timeIntervalSinceReferenceDate
                             let prog = t.truncatingRemainder(dividingBy: 2.8) / 2.8
@@ -1244,7 +1277,6 @@ struct RoseModule: View {
                                 .stroke(Color.white.opacity(0.85 * (1 - prog)), lineWidth: 6)
                                 .frame(width: max(2, 150 * prog), height: max(2, 150 * prog))
                                 .blur(radius: 2.5)
-                                .shadow(color: P.hot.opacity(0.6 * (1 - prog)), radius: 4)
                         }
                         .mask(
                             ZStack {
@@ -1533,6 +1565,7 @@ struct DashboardView: View {
     @ObservedObject var store = UsageStore.shared
     @ObservedObject var settings = SettingsStore.shared
     @State private var tab: Tab = .trend
+    @ObservedObject private var ui = UIActivity.shared
 
     var body: some View {
         let m = store.metrics
@@ -1730,10 +1763,10 @@ struct DashboardView: View {
                         Group {
                             if gSnapshotMode {
                                 blockBars(b, maxBar, time: 2.45)
-                            } else if !fxKey("blockbars") {
+                            } else if !fxKey("blockbars") || !ui.animsActive {
                                 blockBars(b, maxBar, time: -1)
                             } else {
-                                TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
+                                TimelineView(.animation(minimumInterval: 1.0 / 15.0)) { ctx in
                                     blockBars(b, maxBar, time: ctx.date.timeIntervalSinceReferenceDate)
                                 }
                             }

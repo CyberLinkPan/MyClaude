@@ -5,6 +5,21 @@ import Combine
 /// 置 true 时视图用普通布局替代滚动容器（仅 --snapshot 自检用）
 var gSnapshotMode = false
 
+/// 界面可见性追踪：面板全部不可见时动画时钟停摆（省 CPU / 能耗）。
+/// 主窗口关闭后只是被隐藏，若不加此闸门 TimelineView 会在后台持续渲染。
+final class UIActivity: ObservableObject {
+    static let shared = UIActivity()
+    @Published var animsActive = false
+
+    var popoverOpen = false { didSet { update() } }
+    var mainVisible = false { didSet { update() } }
+
+    private func update() {
+        let a = popoverOpen || mainVisible
+        if a != animsActive { animsActive = a }
+    }
+}
+
 // MARK: - 数据模型
 
 struct UsageEvent {

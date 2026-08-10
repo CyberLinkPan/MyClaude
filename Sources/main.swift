@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     static var shared: AppDelegate!
 
     private var statusItem: NSStatusItem!
@@ -40,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.animates = true
         popover.contentViewController = NSHostingController(rootView: PopoverView())
         popover.appearance = NSAppearance(named: .vibrantDark)
+        popover.delegate = self   // 跟踪关闭事件，停掉动画时钟
 
         // 菜单栏标题 = 今日用量（默认关闭，占宽在满菜单栏上易被刘海挤掉）
         UsageStore.shared.$metrics
@@ -80,16 +81,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             popover.performClose(nil)
         } else if let b = statusItem.button {
             UsageStore.shared.refresh()
+            UIActivity.shared.popoverOpen = true
             popover.show(relativeTo: b.bounds, of: b, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
     }
 
+    func popoverDidClose(_ notification: Notification) {
+        UIActivity.shared.popoverOpen = false
+    }
+
     func openMain() {
         if mainWindow == nil {
-            mainWindow = makeGlassWindow(size: NSSize(width: 1080, height: 780),
-                                         root: AnyView(DashboardView()))
+            let w = makeGlassWindow(size: NSSize(width: 1080, height: 780),
+                                    root: AnyView(DashboardView()))
+            mainWindow = w
+            // 跟踪窗口可见性（关闭/最小化/被完全遮挡/切换空间都会触发）：
+            // 不可见时停掉仪表盘的所有动画时钟
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.didChangeOcclusionStateNotification,
+                object: w, queue: .main) { [weak w] _ in
+                    guard let w else { return }
+                    UIActivity.shared.mainVisible =
+                        w.isVisible && w.occlusionState.contains(.visible)
+                }
         }
+        UIActivity.shared.mainVisible = true
         show(mainWindow)
     }
 
