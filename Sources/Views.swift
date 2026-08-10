@@ -191,8 +191,12 @@ struct LineChart: View {
                     if comet {
                         if fx && ui.animsActive && !gSnapshotMode {
                             TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
-                                cometView(main, w: w, h: h,
-                                          time: ctx.date.timeIntervalSinceReferenceDate)
+                                // 必须套 ZStack：多个 .position 子视图直接放进 TimelineView
+                                // 会丢失图表坐标系，光点会飘出图外
+                                ZStack {
+                                    cometView(main, w: w, h: h,
+                                              time: ctx.date.timeIntervalSinceReferenceDate)
+                                }
                             }
                         } else if gSnapshotMode {
                             cometView(main, w: w, h: h, time: 3.5)
@@ -340,7 +344,11 @@ struct Bar: View {
                         lightLayer(fillW: fillW, time: 2.45)
                     } else if fx && ui.animsActive {
                         TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { ctx in
-                            lightLayer(fillW: fillW, time: ctx.date.timeIntervalSinceReferenceDate)
+                            // 套 ZStack 保持与外层一致的 leading 坐标系（见 LineChart 同注）
+                            ZStack(alignment: .leading) {
+                                lightLayer(fillW: fillW, time: ctx.date.timeIntervalSinceReferenceDate)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                         }
                     }
                 }
