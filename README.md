@@ -8,7 +8,15 @@
 
 实时统计你的 Claude Code token 消耗——今日 / 本周 / 近90天热力图 / 模型分布 / 5小时窗口 / 缓存命中率。
 
-`Swift` · `SwiftUI` · `零依赖` · `完全本地` · `v1.0`
+[English](README_EN.md) | 简体中文
+
+[![Release](https://img.shields.io/github/v/release/CyberLinkPan/MyClaude?color=5ac8fa&label=Release)](../../releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/CyberLinkPan/MyClaude/total?color=5ac8fa&label=Downloads)](../../releases)
+[![Build](https://github.com/CyberLinkPan/MyClaude/actions/workflows/build.yml/badge.svg)](../../actions)
+[![License](https://img.shields.io/github/license/CyberLinkPan/MyClaude?color=5ac8fa)](LICENSE)
+![Platform](https://img.shields.io/badge/macOS%2013%2B-Apple%20Silicon-5ac8fa)
+
+`Swift` · `SwiftUI` · `零依赖` · `完全本地`
 
 <img src="docs/dashboard-v1.png" width="820" alt="主面板仪表盘">
 

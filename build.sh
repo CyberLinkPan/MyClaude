@@ -66,7 +66,7 @@ EOF
 # 用固定的自签名身份签名（ad-hoc 签名每次构建身份都变，
 # 会导致钥匙串反复弹出授权框；固定身份只需授权一次）
 IDENTITY="MyClaude Dev"
-if ! security find-identity -v -p codesigning 2>/dev/null | grep -q "$IDENTITY"; then
+if [ -z "$CI" ] && ! security find-identity -v -p codesigning 2>/dev/null | grep -q "$IDENTITY"; then
     echo "创建自签名代码签名证书: $IDENTITY"
     T=$(mktemp -d)
     cat > "$T/conf" <<'CONF'
