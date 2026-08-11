@@ -1,0 +1,26 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths: ["Sources/**", "build.sh", ".github/workflows/build.yml"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build MyClaude.app
+        run: ./build.sh
+      - name: Verify bundle
+        run: |
+          test -x MyClaude.app/Contents/MacOS/MyClaude
+          test -f MyClaude.app/Contents/Resources/AppIcon.icns
+          echo "bundle OK"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyClaude.app
+          path: MyClaude.app
