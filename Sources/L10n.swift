@@ -199,6 +199,12 @@ enum L10n {
         "数据来源：~/.claude/projects 会话记录\n口径：输入 + 输出 + 缓存写入 + 缓存读取（混合口径）":
             "Data: ~/.claude/projects session logs\nCounting: input + output + cache write + cache read",
 
+        // ── 刘海遮挡提示
+        "菜单栏图标被刘海挡住了": "Menu bar icon is hidden by the notch",
+        "菜单栏图标太多时，MyClaude 的图标可能正好排在刘海下面。按住 ⌘ 拖走或退出一两个不常用的菜单栏图标，它就会露出来。主窗口已为你打开；双击 App 图标随时可以再次打开。":
+            "With a crowded menu bar, MyClaude's icon can end up right under the notch. ⌘-drag away or quit a couple of unused menu bar icons and it will reappear. The dashboard has been opened for you; double-click the app icon to open it anytime.",
+        "知道了": "Got it",
+
         // ── GitHub 错误
         "Token 无效或已过期": "Token invalid or expired",
         "响应解析失败": "Failed to parse response",

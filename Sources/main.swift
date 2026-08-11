@@ -58,6 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             let sw = NSScreen.main?.frame.width ?? 0
             let msg = "statusItem x=\(Int(f.origin.x)) w=\(Int(f.width)) screenW=\(Int(sw)) visible=\(self.statusItem.isVisible)\n"
             try? msg.write(toFile: "/tmp/myclaude-diag.txt", atomically: true, encoding: .utf8)
+            self.warnIfHiddenByNotch(frame: f)
         }
 
         UsageStore.shared.refresh()
@@ -68,6 +69,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         if CommandLine.arguments.contains("--open") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { self.openMain() }
         }
+    }
+
+    /// 刘海遮挡检测：图标排进刘海区域时（macOS 不会自动避开），
+    /// 自动打开主窗口并提示用户如何腾出位置
+    private func warnIfHiddenByNotch(frame f: NSRect) {
+        guard let screen = NSScreen.main, screen.safeAreaInsets.top > 0,
+              f.width > 0,
+              let left = screen.auxiliaryTopLeftArea,
+              let right = screen.auxiliaryTopRightArea else { return }
+        let mid = f.midX
+        guard mid > left.maxX && mid < right.minX else { return }
+        openMain()
+        let a = NSAlert()
+        a.messageText = "菜单栏图标被刘海挡住了".loc
+        a.informativeText = "菜单栏图标太多时，MyClaude 的图标可能正好排在刘海下面。按住 ⌘ 拖走或退出一两个不常用的菜单栏图标，它就会露出来。主窗口已为你打开；双击 App 图标随时可以再次打开。".loc
+        a.addButton(withTitle: "知道了".loc)
+        NSApp.activate(ignoringOtherApps: true)
+        a.runModal()
     }
 
     /// 双击 App 图标（或 open 已运行的 App）时打开主窗口——菜单栏图标被挤掉时的备用入口
