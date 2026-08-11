@@ -74,10 +74,10 @@ func fxOf(_ m: Module) -> Bool {
 }
 
 /// 主面板左栏固定图表的独立光效项
-let extraFXItems: [(id: String, name: String)] = [
-    ("rhythm", "今日累计节奏"),
-    ("blockbars", "5h窗柱状"),
-]
+var extraFXItems: [(id: String, name: String)] {
+    [("rhythm", "今日累计节奏".loc),
+     ("blockbars", "5h窗柱状".loc)]
+}
 
 // MARK: - 滚动容器（快照模式下退化为普通布局，因 ImageRenderer 不渲染 ScrollView 内容）
 
@@ -437,7 +437,7 @@ struct HeatGrid: View {
             VStack(alignment: .trailing, spacing: gap) {
                 if showMonths { Text(" ").font(.system(size: 8)).frame(height: 10) }
                 ForEach(0..<7, id: \.self) { r in
-                    Text(["一", "二", "三", "四", "五", "六", "日"][r])
+                    Text(L10n.weekMon[r])
                         .font(.system(size: 8))
                         .foregroundStyle(r % 2 == 0 ? P.faint : .clear)
                         .frame(width: labelW, height: cell, alignment: .trailing)
@@ -521,13 +521,13 @@ struct HeatLegend: View {
     @ObservedObject private var theme = SettingsStore.shared
     var body: some View {
         HStack(spacing: 3) {
-            Text("少").font(.system(size: 8)).foregroundStyle(P.faint)
+            Text("少".loc).font(.system(size: 8)).foregroundStyle(P.faint)
             ForEach(0..<5, id: \.self) { i in
                 RoundedRectangle(cornerRadius: 2)
                     .fill(P.heat(Double(i) / 4 * 0.9 + (i == 0 ? 0 : 0.1)))
                     .frame(width: 8, height: 8)
             }
-            Text("多").font(.system(size: 8)).foregroundStyle(P.faint)
+            Text("多".loc).font(.system(size: 8)).foregroundStyle(P.faint)
         }
     }
 }
@@ -651,20 +651,20 @@ enum Module: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var name: String {
         switch self {
-        case .ring: return "圆环总览"
-        case .goals: return "Token 小目标"
-        case .heatmap: return "90天热力图"
-        case .last7: return "最近7天"
-        case .reset: return "下次重置"
-        case .health: return "健康度"
-        case .models: return "模型分布"
-        case .gauge: return "今日仪表盘"
-        case .pulse: return "实时脉搏"
-        case .clock: return "昼夜热环"
-        case .rose: return "周节律玫瑰"
-        case .odometer: return "里程碑计数"
-        case .cache: return "缓存命中率"
-        case .github: return "GitHub 仓库"
+        case .ring: return "圆环总览".loc
+        case .goals: return "Token 小目标".loc
+        case .heatmap: return "90天热力图".loc
+        case .last7: return "最近7天".loc
+        case .reset: return "下次重置".loc
+        case .health: return "健康度".loc
+        case .models: return "模型分布".loc
+        case .gauge: return "今日仪表盘".loc
+        case .pulse: return "实时脉搏".loc
+        case .clock: return "昼夜热环".loc
+        case .rose: return "周节律玫瑰".loc
+        case .odometer: return "里程碑计数".loc
+        case .cache: return "缓存命中率".loc
+        case .github: return "GitHub 仓库".loc
         }
     }
 
@@ -691,33 +691,33 @@ enum Module: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .ring:
-            return "周额度剩余圆环 + 今日累计曲线。圆环按『每周预算』计算本周还剩多少，中心显示剩余百分比和距重置天数；右侧是今日逐半小时累计曲线，虚线为近 7 日均值参考——一眼判断今天用得比平常快还是慢。"
+            return "周额度剩余圆环 + 今日累计曲线。圆环按『每周预算』计算本周还剩多少，中心显示剩余百分比和距重置天数；右侧是今日逐半小时累计曲线，虚线为近 7 日均值参考——一眼判断今天用得比平常快还是慢。".loc
         case .goals:
-            return "今日 / 本周两条目标进度条。分别对照『今日目标』和『每周预算』显示已用量与完成百分比，超过 100% 时以高亮色提示。适合给自己设定节制线或冲量目标。"
+            return "今日 / 本周两条目标进度条。分别对照『今日目标』和『每周预算』显示已用量与完成百分比，超过 100% 时以高亮色提示。适合给自己设定节制线或冲量目标。".loc
         case .heatmap:
-            return "GitHub 风格贡献格。近 90 天每天一格，颜色越亮当天用量越大（对数刻度），行序为周一到周日，底部附 90 天合计。长期使用习惯一目了然。"
+            return "GitHub 风格贡献格。近 90 天每天一格，颜色越亮当天用量越大（对数刻度），行序为周一到周日，底部附 90 天合计。长期使用习惯一目了然。".loc
         case .last7:
-            return "近 7 天（含今日）逐日用量折线与 7 天合计，观察一周内的用量起伏和趋势拐点。"
+            return "近 7 天（含今日）逐日用量折线与 7 天合计，观察一周内的用量起伏和趋势拐点。".loc
         case .reset:
-            return "距下一次周额度重置的日期与天数，进度条显示本周期已经过的比例。重置的星期与时刻可在『目标与周期』栏修改。"
+            return "距下一次周额度重置的日期与天数，进度条显示本周期已经过的比例。重置的星期与时刻可在『目标与周期』栏修改。".loc
         case .health:
-            return "预算消耗体检：本周已用百分比 + 按当前节奏外推到重置日的预计总量，并显示连续活跃天数。预计值超过预算说明节奏偏快，该踩刹车了。"
+            return "预算消耗体检：本周已用百分比 + 按当前节奏外推到重置日的预计总量，并显示连续活跃天数。预计值超过预算说明节奏偏快，该踩刹车了。".loc
         case .models:
-            return "各模型（Opus / Fable / Sonnet…）历史累计用量排行与占比条，看清额度都花在了哪个模型上。"
+            return "各模型（Opus / Fable / Sonnet…）历史累计用量排行与占比条，看清额度都花在了哪个模型上。".loc
         case .gauge:
-            return "速度表风格的今日读数：240° 表盘 + 发光指针 + 刻度，量程为今日目标的 150%，指针角度直观反映目标完成度，冲破 100% 自有仪式感。"
+            return "速度表风格的今日读数：240° 表盘 + 发光指针 + 刻度，量程为今日目标的 150%，指针角度直观反映目标完成度，冲破 100% 自有仪式感。".loc
         case .pulse:
-            return "近 60 分钟逐分钟用量频谱，右上角 LIVE 呼吸灯表示实时监控，最右侧高亮柱为最近几分钟。挂着它就能感知当前会话的消耗节奏。"
+            return "近 60 分钟逐分钟用量频谱，右上角 LIVE 呼吸灯表示实时监控，最右侧高亮柱为最近几分钟。挂着它就能感知当前会话的消耗节奏。".loc
         case .clock:
-            return "24 小时钟面热力环：近 90 天用量按发生时段聚合，每格一小时，越亮代表该时段历史用量越大，白框标出当前时段。看清自己是白天型还是深夜型选手。"
+            return "24 小时钟面热力环：近 90 天用量按发生时段聚合，每格一小时，越亮代表该时段历史用量越大，白框标出当前时段。看清自己是白天型还是深夜型选手。".loc
         case .rose:
-            return "极坐标玫瑰图：近 90 天用量按周一到周日聚合为七片花瓣，花瓣越大该天用得越多（面积开方校正），今天的花瓣高亮描边。"
+            return "极坐标玫瑰图：近 90 天用量按周一到周日聚合为七片花瓣，花瓣越大该天用得越多（面积开方校正），今天的花瓣高亮描边。".loc
         case .odometer:
-            return "机械翻牌里程表：历史累计总量逐位显示，下方是距下一个里程碑（100M、200M、500M、1B…）的进度与差额。攒数字的快乐。"
+            return "机械翻牌里程表：历史累计总量逐位显示，下方是距下一个里程碑（100M、200M、500M、1B…）的进度与差额。攒数字的快乐。".loc
         case .cache:
-            return "输入侧 token 构成环：缓存读取 / 缓存写入 / 新鲜输入三者占比，中心为命中率。命中率越高，提示词缓存复用越好、同样额度干更多活——Claude Code 的省额度关键指标。"
+            return "输入侧 token 构成环：缓存读取 / 缓存写入 / 新鲜输入三者占比，中心为命中率。命中率越高，提示词缓存复用越好、同样额度干更多活——Claude Code 的省额度关键指标。".loc
         case .github:
-            return "连接 GitHub 账号，显示头像、用户名和最近推送的仓库（名称 / 私有标记 / Star / 语言）。登录方式：在设置中粘贴 Personal Access Token（存入系统钥匙串），或自动复用已登录的 gh CLI。"
+            return "连接 GitHub 账号，显示头像、用户名和最近推送的仓库（名称 / 私有标记 / Star / 语言）。登录方式：在设置中粘贴 Personal Access Token（存入系统钥匙串），或自动复用已登录的 gh CLI。".loc
         }
     }
 }
@@ -772,7 +772,7 @@ struct GitHubModule: View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    ModHeader(icon: "arrow.triangle.branch", title: "GitHub 仓库")
+                    ModHeader(icon: "arrow.triangle.branch", title: "GitHub 仓库".loc)
                     Spacer()
                     Button { gh.refresh() } label: {
                         Image(systemName: "arrow.clockwise")
@@ -783,16 +783,16 @@ struct GitHubModule: View {
                 }
                 switch gh.state {
                 case .notConfigured:
-                    Text("未连接。在 ⚙️ 设置中粘贴 Personal Access Token，或安装并登录 gh CLI 后点右上角刷新。")
+                    Text("未连接。在 ⚙️ 设置中粘贴 Personal Access Token，或安装并登录 gh CLI 后点右上角刷新。".loc)
                         .font(.system(size: 9.5)).foregroundStyle(P.faint)
                         .fixedSize(horizontal: false, vertical: true)
                 case .loading:
                     HStack(spacing: 6) {
                         ProgressView().controlSize(.small)
-                        Text("加载中…").font(.system(size: 10)).foregroundStyle(P.sub)
+                        Text("加载中…".loc).font(.system(size: 10)).foregroundStyle(P.sub)
                     }
                 case .failed(let e):
-                    Text("加载失败：\(e)")
+                    Text(lf("加载失败：%@", e))
                         .font(.system(size: 9.5)).foregroundStyle(P.hot)
                         .fixedSize(horizontal: false, vertical: true)
                 case .loaded(let user, let repos):
@@ -810,7 +810,7 @@ struct GitHubModule: View {
                         Text(user.login)
                             .font(.system(size: 12, weight: .semibold)).foregroundStyle(P.text)
                         Spacer()
-                        Tag(text: "\(user.publicRepos) 公开仓库")
+                        Tag(text: lf("%d 公开仓库", user.publicRepos))
                     }
                     ForEach(repos.prefix(6)) { r in
                         HStack(spacing: 5) {
@@ -831,7 +831,7 @@ struct GitHubModule: View {
                         }
                     }
                     if repos.isEmpty {
-                        Text("没有仓库").font(.system(size: 10)).foregroundStyle(P.faint)
+                        Text("没有仓库".loc).font(.system(size: 10)).foregroundStyle(P.faint)
                     }
                 }
             }
@@ -849,16 +849,16 @@ struct RingModule: View {
             HStack(spacing: 14) {
                 RingView(fraction: remain,
                          title: Fmt.pct(remain),
-                         subtitle: "剩余\(m.daysLeft)天")
+                         subtitle: lf("剩余%d天", m.daysLeft))
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 5) {
                         Circle().fill(P.accent).frame(width: 6, height: 6)
                             .shadow(color: P.accent, radius: 3)
-                        Text("今日 token")
+                        Text("今日 token".loc)
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(P.text)
                     }
-                    Text("今日累计 · 近 7 日均值")
+                    Text("今日累计 · 近 7 日均值".loc)
                         .font(.system(size: 8)).foregroundStyle(P.faint)
                     LineChart(series: m.todayCum, ref: m.avg7Cum,
                               xLabels: ["00", "12", "23"], height: 46)
@@ -876,12 +876,12 @@ struct GoalsModule: View {
         Card {
             VStack(spacing: 9) {
                 HStack {
-                    ModHeader(icon: "target", title: "Token 小目标")
+                    ModHeader(icon: "target", title: "Token 小目标".loc)
                     Spacer()
-                    Tag(text: "自然周")
+                    Tag(text: "自然周".loc)
                 }
-                goalRow(label: "今日", used: m.today, goal: settings.dailyGoal)
-                goalRow(label: "本周", used: m.week, goal: settings.weeklyBudget)
+                goalRow(label: "今日".loc, used: m.today, goal: settings.dailyGoal)
+                goalRow(label: "本周".loc, used: m.week, goal: settings.weeklyBudget)
             }
         }
     }
@@ -910,13 +910,13 @@ struct HeatmapModule: View {
         Card {
             VStack(spacing: 8) {
                 HStack {
-                    ModHeader(icon: "calendar", title: "近 90 天用量")
+                    ModHeader(icon: "calendar", title: "近 90 天用量".loc)
                     Spacer()
-                    Tag(text: "混合口径")
+                    Tag(text: "混合口径".loc)
                 }
                 HeatGrid(days: m.heat, cell: 12, gap: 3)
                 HStack {
-                    Text("合计 \(Fmt.tokens(m.total90))")
+                    Text(lf("合计 %@", Fmt.tokens(m.total90)))
                         .font(.system(size: 9, weight: .medium)).foregroundStyle(P.sub)
                     Spacer()
                     HeatLegend()
@@ -932,13 +932,13 @@ struct Last7Module: View {
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
-                ModHeader(icon: "chart.xyaxis.line", title: "最近 7 天")
+                ModHeader(icon: "chart.xyaxis.line", title: "最近 7 天".loc)
                 LineChart(series: m.last7Daily, height: 64)
                 HStack(alignment: .firstTextBaseline) {
                     Text(Fmt.tokens(m.last7Sum))
                         .font(.system(size: 22, weight: .bold, design: .rounded))
                         .foregroundStyle(P.text)
-                    Text("7 天合计").font(.system(size: 9)).foregroundStyle(P.faint)
+                    Text("7 天合计".loc).font(.system(size: 9)).foregroundStyle(P.faint)
                 }
             }
         }
@@ -951,13 +951,13 @@ struct ResetModule: View {
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 6) {
-                ModHeader(icon: "arrow.counterclockwise.circle", title: "下次重置")
-                Text("\(Fmt.day(m.nextReset)) · \(m.daysLeft) 天后")
+                ModHeader(icon: "arrow.counterclockwise.circle", title: "下次重置".loc)
+                Text(lf("%@ · %d 天后", Fmt.day(m.nextReset), m.daysLeft))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(P.text)
                 let elapsed = min(1, max(0, Date().timeIntervalSince(m.lastReset) / (7 * 86400)))
                 Bar(fraction: elapsed, height: 4)
-                Text("本周期已过 \(Fmt.pct(elapsed))")
+                Text(lf("本周期已过 %@", Fmt.pct(elapsed)))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
         }
@@ -975,19 +975,19 @@ struct HealthModule: View {
         Card {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    ModHeader(icon: "heart.text.square", title: "健康度")
+                    ModHeader(icon: "heart.text.square", title: "健康度".loc)
                     Spacer()
-                    Tag(text: "连续活跃 \(m.streak) 天")
+                    Tag(text: lf("连续活跃 %d 天", m.streak))
                 }
                 HStack {
-                    Text("预算已用").font(.system(size: 10)).foregroundStyle(P.sub)
+                    Text("预算已用".loc).font(.system(size: 10)).foregroundStyle(P.sub)
                     Spacer()
                     Text(Fmt.pct(used))
                         .font(.system(size: 12, weight: .bold, design: .rounded))
                         .foregroundStyle(used > 1 ? P.hot : P.accent2)
                 }
                 Bar(fraction: used)
-                Text("按当前节奏，重置前约 \(Fmt.tokens(projected))（预算的 \(Fmt.pct(projected / max(settings.weeklyBudget, 1)))）")
+                Text(lf("按当前节奏，重置前约 %@（预算的 %@）", Fmt.tokens(projected), Fmt.pct(projected / max(settings.weeklyBudget, 1))))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1001,7 +1001,7 @@ struct ModelsModule: View {
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
-                ModHeader(icon: "cpu", title: "模型分布")
+                ModHeader(icon: "cpu", title: "模型分布".loc)
                 let top = Array(m.models.prefix(4))
                 let sum = max(m.lifetime, 1)
                 ForEach(Array(top.enumerated()), id: \.offset) { _, mo in
@@ -1018,7 +1018,7 @@ struct ModelsModule: View {
                     }
                 }
                 if top.isEmpty {
-                    Text("暂无数据").font(.system(size: 11)).foregroundStyle(P.faint)
+                    Text("暂无数据".loc).font(.system(size: 11)).foregroundStyle(P.faint)
                 }
             }
         }
@@ -1037,9 +1037,9 @@ struct GaugeModule: View {
         Card {
             VStack(spacing: 2) {
                 HStack {
-                    ModHeader(icon: "gauge.with.needle", title: "今日仪表盘")
+                    ModHeader(icon: "gauge.with.needle", title: "今日仪表盘".loc)
                     Spacer()
-                    Tag(text: "量程 150%")
+                    Tag(text: "量程 150%".loc)
                 }
                 ZStack {
                     // 背景弧
@@ -1071,7 +1071,7 @@ struct GaugeModule: View {
                         Text(Fmt.tokens(m.today))
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                             .foregroundStyle(P.text)
-                        Text("目标 \(Fmt.pct(frac))")
+                        Text(lf("目标 %@", Fmt.pct(frac)))
                             .font(.system(size: 9)).foregroundStyle(frac > 1 ? P.hot : P.sub)
                     }
                     .offset(y: 34)
@@ -1095,7 +1095,7 @@ struct PulseModule: View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    ModHeader(icon: "waveform.path", title: "实时脉搏")
+                    ModHeader(icon: "waveform.path", title: "实时脉搏".loc)
                     Spacer()
                     Circle().fill(P.accent).frame(width: 6, height: 6)
                         .scaleEffect(breathe ? 1.3 : 0.75)
@@ -1119,12 +1119,12 @@ struct PulseModule: View {
                 }
                 .frame(height: 42, alignment: .bottom)
                 HStack {
-                    Text("60 分钟前").font(.system(size: 8)).foregroundStyle(P.faint)
+                    Text("60 分钟前".loc).font(.system(size: 8)).foregroundStyle(P.faint)
                     Spacer()
-                    Text("近1小时 \(Fmt.tokens(m.min60Sum))")
+                    Text(lf("近1小时 %@", Fmt.tokens(m.min60Sum)))
                         .font(.system(size: 9, weight: .semibold)).foregroundStyle(P.accent2)
                     Spacer()
-                    Text("现在").font(.system(size: 8)).foregroundStyle(P.faint)
+                    Text("现在".loc).font(.system(size: 8)).foregroundStyle(P.faint)
                 }
             }
         }
@@ -1167,9 +1167,9 @@ struct ClockModule: View {
         Card {
             VStack(spacing: 6) {
                 HStack {
-                    ModHeader(icon: "clock", title: "昼夜热环")
+                    ModHeader(icon: "clock", title: "昼夜热环".loc)
                     Spacer()
-                    Tag(text: "近90天分布")
+                    Tag(text: "近90天分布".loc)
                 }
                 ZStack {
                     ForEach(0..<24, id: \.self) { h in
@@ -1190,7 +1190,7 @@ struct ClockModule: View {
                         Text(String(format: "%02d:00", nowHour))
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .foregroundStyle(P.text)
-                        Text("当前时段")
+                        Text("当前时段".loc)
                             .font(.system(size: 8)).foregroundStyle(P.faint)
                     }
                     // 方位小时标
@@ -1228,7 +1228,7 @@ struct RoseModule: View {
     let m: Metrics
     @Environment(\.fxEnabled) private var fx
     @ObservedObject private var ui = UIActivity.shared
-    private static let names = ["一", "二", "三", "四", "五", "六", "日"]
+    private static var names: [String] { L10n.weekMon }
 
     private var maxV: Double { max(m.weekdayDist.max() ?? 1, 1) }
     private var today: Int { (Calendar.current.component(.weekday, from: Date()) + 5) % 7 }
@@ -1267,9 +1267,9 @@ struct RoseModule: View {
         Card {
             VStack(spacing: 6) {
                 HStack {
-                    ModHeader(icon: "camera.macro", title: "周节律玫瑰")
+                    ModHeader(icon: "camera.macro", title: "周节律玫瑰".loc)
                     Spacer()
-                    Tag(text: "近90天分布")
+                    Tag(text: "近90天分布".loc)
                 }
                 ZStack {
                     // 参考圈
@@ -1317,9 +1317,9 @@ struct OdometerModule: View {
         Card {
             VStack(alignment: .leading, spacing: 9) {
                 HStack {
-                    ModHeader(icon: "flag.checkered", title: "里程碑计数")
+                    ModHeader(icon: "flag.checkered", title: "里程碑计数".loc)
                     Spacer()
-                    Tag(text: "历史累计")
+                    Tag(text: "历史累计".loc)
                 }
                 HStack(spacing: 3) {
                     ForEach(Array(Fmt.tokens(m.lifetime).enumerated()), id: \.offset) { _, ch in
@@ -1345,7 +1345,7 @@ struct OdometerModule: View {
                     Spacer()
                 }
                 Bar(fraction: m.lifetime / next, height: 4)
-                Text("下一里程碑 \(Fmt.tokens(next))，还差 \(Fmt.tokens(next - m.lifetime))")
+                Text(lf("下一里程碑 %@，还差 %@", Fmt.tokens(next), Fmt.tokens(next - m.lifetime)))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
         }
@@ -1363,9 +1363,9 @@ struct CacheModule: View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    ModHeader(icon: "memorychip", title: "缓存命中率")
+                    ModHeader(icon: "memorychip", title: "缓存命中率".loc)
                     Spacer()
-                    Tag(text: "输入侧构成")
+                    Tag(text: "输入侧构成".loc)
                 }
                 HStack(spacing: 14) {
                     ZStack {
@@ -1381,17 +1381,17 @@ struct CacheModule: View {
                             Text(Fmt.pct(read))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                                 .foregroundStyle(P.text)
-                            Text("命中").font(.system(size: 8)).foregroundStyle(P.faint)
+                            Text("命中".loc).font(.system(size: 8)).foregroundStyle(P.faint)
                         }
                     }
                     .frame(width: 80, height: 80)
                     VStack(alignment: .leading, spacing: 6) {
-                        legend(color: P.accent, name: "缓存读取", value: m.totCacheRead)
-                        legend(color: P.accent2.opacity(0.75), name: "缓存写入", value: m.totCacheWrite)
-                        legend(color: Color.white.opacity(0.35), name: "新鲜输入", value: m.totInput)
+                        legend(color: P.accent, name: "缓存读取".loc, value: m.totCacheRead)
+                        legend(color: P.accent2.opacity(0.75), name: "缓存写入".loc, value: m.totCacheWrite)
+                        legend(color: Color.white.opacity(0.35), name: "新鲜输入".loc, value: m.totInput)
                     }
                 }
-                Text("命中率越高，重复上下文越省——这是省额度的关键指标")
+                Text("命中率越高，重复上下文越省——这是省额度的关键指标".loc)
                     .font(.system(size: 9)).foregroundStyle(P.faint)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1445,7 +1445,7 @@ struct LiquidTabBar: View {
             // 标签（等宽分段，拖拽计算简单且视觉整齐）
             HStack(spacing: 0) {
                 ForEach(tabs, id: \.self) { t in
-                    Text(t.rawValue)
+                    Text(t.rawValue.loc)
                         .font(.system(size: 11, weight: t == selection ? .semibold : .regular))
                         .foregroundStyle(t == selection ? P.text : P.sub)
                         .frame(width: segW, height: segH)
@@ -1511,7 +1511,7 @@ struct PopoverView: View {
                     }
                     if settings.popoverModules.isEmpty {
                         Card {
-                            Text("没有启用任何模块——去 ⚙️ 设置里勾选")
+                            Text("没有启用任何模块——去 ⚙️ 设置里勾选".loc)
                                 .font(.system(size: 11)).foregroundStyle(P.faint)
                                 .frame(maxWidth: .infinity)
                         }
@@ -1524,7 +1524,7 @@ struct PopoverView: View {
             HStack(spacing: 8) {
                 roundBtn("gearshape.fill") { AppDelegate.shared.openSettings() }
                 Button { AppDelegate.shared.openMain() } label: {
-                    Text("打开 MyClaude")
+                    Text("打开 MyClaude".loc)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(P.text)
                         .frame(maxWidth: .infinity)
@@ -1624,23 +1624,23 @@ struct DashboardView: View {
     private func statRow(_ m: Metrics) -> some View {
         let remain = max(0, 1 - m.week / max(settings.weeklyBudget, 1))
         return HStack(spacing: 12) {
-            statCard(icon: "gauge.with.needle", title: "7天剩余", value: Fmt.pct(remain)) {
+            statCard(icon: "gauge.with.needle", title: "7天剩余".loc, value: Fmt.pct(remain)) {
                 VStack(alignment: .leading, spacing: 5) {
                     Bar(fraction: remain)
-                    Text("重置 \(Fmt.day(m.nextReset)) \(Fmt.hm(m.nextReset))")
+                    Text(lf("重置 %@ %@", Fmt.day(m.nextReset), Fmt.hm(m.nextReset)))
                         .font(.system(size: 9)).foregroundStyle(P.faint)
                 }
             }
-            statCard(icon: "sun.max.fill", title: "今日", value: Fmt.tokens(m.today)) {
-                Text("输入 \(Fmt.tokens(m.todayInput)) · 输出 \(Fmt.tokens(m.todayOutput))")
+            statCard(icon: "sun.max.fill", title: "今日".loc, value: Fmt.tokens(m.today)) {
+                Text(lf("输入 %@ · 输出 %@", Fmt.tokens(m.todayInput), Fmt.tokens(m.todayOutput)))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
-            statCard(icon: "clock.arrow.circlepath", title: "近7天", value: Fmt.tokens(m.last7Sum)) {
-                Text("日均 \(Fmt.tokens(m.last7Sum / 7))")
+            statCard(icon: "clock.arrow.circlepath", title: "近7天".loc, value: Fmt.tokens(m.last7Sum)) {
+                Text(lf("日均 %@", Fmt.tokens(m.last7Sum / 7)))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
-            statCard(icon: "chart.bar.fill", title: "累计", value: Fmt.tokens(m.lifetime)) {
-                Text("近90天 \(Fmt.tokens(m.total90))")
+            statCard(icon: "chart.bar.fill", title: "累计".loc, value: Fmt.tokens(m.lifetime)) {
+                Text(lf("近90天 %@", Fmt.tokens(m.total90)))
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
         }
@@ -1667,7 +1667,7 @@ struct DashboardView: View {
         HStack {
             LiquidTabBar(selection: $tab)
             Spacer()
-            Text("下次重置 \(Fmt.day(m.nextReset)) · \(m.daysLeft) 天后")
+            Text(lf("下次重置 %@ · %d 天后", Fmt.day(m.nextReset), m.daysLeft))
                 .font(.system(size: 10)).foregroundStyle(P.sub)
         }
     }
@@ -1680,9 +1680,9 @@ struct DashboardView: View {
             Card {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        header("square.grid.3x3.fill", "最近 90 天用量")
+                        header("square.grid.3x3.fill", "最近 90 天用量".loc)
                         Spacer()
-                        Tag(text: "近90天合计 \(Fmt.tokens(m.total90))")
+                        Tag(text: lf("近90天合计 %@", Fmt.tokens(m.total90)))
                     }
                     HStack {
                         Spacer()
@@ -1697,10 +1697,10 @@ struct DashboardView: View {
             Card {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        header("waveform.path.ecg", "今日累计节奏")
+                        header("waveform.path.ecg", "今日累计节奏".loc)
                         Spacer()
                         let proj = projected(m)
-                        Tag(text: "预计全天 \(Fmt.tokens(proj))")
+                        Tag(text: lf("预计全天 %@", Fmt.tokens(proj)))
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(Fmt.tokens(m.today))
@@ -1708,7 +1708,7 @@ struct DashboardView: View {
                             .foregroundStyle(P.text)
                         if m.yesterday > 0 {
                             let d = m.today / m.yesterday - 1
-                            Text((d >= 0 ? "较昨日 +" : "较昨日 ") + Fmt.pct(d))
+                            Text((d >= 0 ? "较昨日 +".loc : "较昨日 ".loc) + Fmt.pct(d))
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(d >= 0 ? P.accent2 : P.sub)
                         }
@@ -1721,7 +1721,7 @@ struct DashboardView: View {
         case .rank:
             Card {
                 VStack(alignment: .leading, spacing: 10) {
-                    header("list.number", "项目排行")
+                    header("list.number", "项目排行".loc)
                     let top = Array(m.projects.prefix(7))
                     let maxV = top.first?.tokens ?? 1
                     ForEach(Array(top.enumerated()), id: \.offset) { i, p in
@@ -1747,23 +1747,23 @@ struct DashboardView: View {
         case .block:
             Card {
                 VStack(alignment: .leading, spacing: 10) {
-                    header("timer", "5 小时窗口")
+                    header("timer", "5 小时窗口".loc)
                     if let b = m.block {
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(Fmt.tokens(b.tokens))
                                 .font(.system(size: 30, weight: .bold, design: .rounded))
                                 .foregroundStyle(P.text)
-                            Text("本窗口用量").font(.system(size: 10)).foregroundStyle(P.sub)
+                            Text("本窗口用量".loc).font(.system(size: 10)).foregroundStyle(P.sub)
                         }
                         let now = Date()
                         let frac = now.timeIntervalSince(b.start) / (5 * 3600)
                         Bar(fraction: frac)
                         HStack {
-                            Text("窗口 \(Fmt.hm(b.start)) – \(Fmt.hm(b.end))")
+                            Text(lf("窗口 %@ – %@", Fmt.hm(b.start), Fmt.hm(b.end)))
                                 .font(.system(size: 10)).foregroundStyle(P.sub)
                             Spacer()
                             let left = max(0, b.end.timeIntervalSince(now))
-                            Text("剩余 \(Int(left) / 3600)时\((Int(left) % 3600) / 60)分")
+                            Text(lf("剩余 %d时%d分", Int(left) / 3600, (Int(left) % 3600) / 60))
                                 .font(.system(size: 10, weight: .semibold)).foregroundStyle(P.accent2)
                         }
                         // 每 30 分钟柱状（带上升光带）
@@ -1781,7 +1781,7 @@ struct DashboardView: View {
                         }
                         .frame(height: 74, alignment: .bottom)
                     } else {
-                        Text("当前没有活跃的 5 小时窗口")
+                        Text("当前没有活跃的 5 小时窗口".loc)
                             .font(.system(size: 12)).foregroundStyle(P.sub)
                             .frame(maxWidth: .infinity, minHeight: 120)
                     }
@@ -1795,15 +1795,15 @@ struct DashboardView: View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    header("waveform.path.ecg", "今日累计节奏")
+                    header("waveform.path.ecg", "今日累计节奏".loc)
                     Spacer()
                     if m.yesterday > 0 {
                         let d = m.today / m.yesterday - 1
-                        Tag(text: (d >= 0 ? "较昨日 +" : "较昨日 ") + Fmt.pct(d))
+                        Tag(text: (d >= 0 ? "较昨日 +".loc : "较昨日 ".loc) + Fmt.pct(d))
                     }
                 }
                 HStack(alignment: .firstTextBaseline) {
-                    Text("今日 \(Fmt.tokens(m.today))")
+                    Text(lf("今日 %@", Fmt.tokens(m.today)))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(P.text)
                 }
@@ -1848,7 +1848,7 @@ struct DashboardView: View {
     }
 
     private var emptyHint: some View {
-        Text("暂无数据").font(.system(size: 11)).foregroundStyle(P.faint)
+        Text("暂无数据".loc).font(.system(size: 11)).foregroundStyle(P.faint)
     }
 
     private func projected(_ m: Metrics) -> Double {
@@ -1936,14 +1936,14 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("设置")
+            Text("设置".loc)
                 .font(.system(size: 15, weight: .bold)).foregroundStyle(P.text)
             // 横向三栏：外观 | 模块显示 | 目标与周期
             HStack(alignment: .top, spacing: 12) {
                 VStack(spacing: 12) {
                     appearanceCard
                     fxCard
-                    Text("数据来源：~/.claude/projects 会话记录\n口径：输入 + 输出 + 缓存写入 + 缓存读取（混合口径）")
+                    Text("数据来源：~/.claude/projects 会话记录\n口径：输入 + 输出 + 缓存写入 + 缓存读取（混合口径）".loc)
                         .font(.system(size: 9)).foregroundStyle(P.faint)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -1989,8 +1989,16 @@ struct SettingsView: View {
     private var appearanceCard: some View {
         Card {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("外观").font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
-                    row("主题色") {
+                    Text("外观".loc).font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
+                    row("语言".loc) {
+                        Picker("", selection: $settings.language) {
+                            Text("跟随系统".loc).tag("auto")
+                            Text("中文").tag("zh")
+                            Text("English").tag("en")
+                        }
+                        .labelsHidden().frame(width: 110)
+                    }
+                    row("主题色".loc) {
                         ColorPicker("", selection: colorBinding(\.accentRGB), supportsOpacity: false)
                             .labelsHidden()
                     }
@@ -2010,15 +2018,15 @@ struct SettingsView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    row("玻璃染色") {
+                    row("玻璃染色".loc) {
                         ColorPicker("", selection: colorBinding(\.tintRGB), supportsOpacity: false)
                             .labelsHidden()
                     }
-                    row("染色强度 \(Int(settings.tintStrength / 0.6 * 100))%") {
+                    row(lf("染色强度 %d%%", Int(settings.tintStrength / 0.6 * 100))) {
                         Slider(value: $settings.tintStrength, in: 0...0.6)
                             .frame(width: 110)
                     }
-                    Text("强度 0% = 纯玻璃（透出壁纸原色）；调高后玻璃带上你选的颜色")
+                    Text("强度 0% = 纯玻璃（透出壁纸原色）；调高后玻璃带上你选的颜色".loc)
                         .font(.system(size: 9)).foregroundStyle(P.faint)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -2029,16 +2037,16 @@ struct SettingsView: View {
     private var modulesCard: some View {
         Card {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("模块显示").font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
+                    Text("模块显示".loc).font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
                     HStack {
-                        Text("小面板").font(.system(size: 10)).foregroundStyle(P.faint)
+                        Text("小面板".loc).font(.system(size: 10)).foregroundStyle(P.faint)
                         Spacer()
                         resetBtn { settings.popoverModules = SettingsStore.defaultPopoverModules }
                     }
                     moduleChips(\.popoverModules)
                     Divider().overlay(Color.white.opacity(0.08))
                     HStack {
-                        Text("主面板右栏").font(.system(size: 10)).foregroundStyle(P.faint)
+                        Text("主面板右栏".loc).font(.system(size: 10)).foregroundStyle(P.faint)
                         Spacer()
                         resetBtn { settings.dashboardModules = SettingsStore.defaultDashboardModules }
                     }
@@ -2051,28 +2059,28 @@ struct SettingsView: View {
     private var goalsCard: some View {
         Card {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("目标与周期").font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
-                    row("今日目标 (M)") {
+                    Text("目标与周期".loc).font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
+                    row("今日目标 (M)".loc) {
                         TextField("300", text: $dailyText, onCommit: {
                             if let v = Double(dailyText), v > 0 { settings.dailyGoalM = v }
                         })
                         .textFieldStyle(.roundedBorder).frame(width: 90)
                     }
-                    row("每周预算 (B)") {
+                    row("每周预算 (B)".loc) {
                         TextField("3.0", text: $weeklyText, onCommit: {
                             if let v = Double(weeklyText), v > 0 { settings.weeklyBudgetB = v }
                         })
                         .textFieldStyle(.roundedBorder).frame(width: 90)
                     }
-                    row("重置星期") {
+                    row("重置星期".loc) {
                         Picker("", selection: $settings.resetWeekday) {
                             ForEach(1...7, id: \.self) { w in
-                                Text(["日", "一", "二", "三", "四", "五", "六"][w - 1]).tag(w)
+                                Text(L10n.weekSun[w - 1]).tag(w)
                             }
                         }
                         .labelsHidden().frame(width: 90)
                     }
-                    row("重置时刻") {
+                    row("重置时刻".loc) {
                         Picker("", selection: $settings.resetHour) {
                             ForEach(0..<24, id: \.self) { h in
                                 Text(String(format: "%02d:00", h)).tag(h)
@@ -2080,7 +2088,7 @@ struct SettingsView: View {
                         }
                         .labelsHidden().frame(width: 90)
                     }
-                    row("菜单栏显示数字") {
+                    row("菜单栏显示数字".loc) {
                         Toggle("", isOn: $settings.showMenuNumber)
                             .toggleStyle(.switch).labelsHidden()
                     }
@@ -2108,11 +2116,11 @@ struct SettingsView: View {
                             Image(nsImage: a).resizable().scaledToFill()
                                 .frame(width: 18, height: 18).clipShape(Circle())
                         }
-                        Text("已连接：\(user.login)")
+                        Text(lf("已连接：%@", user.login))
                             .font(.system(size: 10, weight: .medium)).foregroundStyle(P.accent2)
                         Spacer()
                         if gh.hasStoredToken {
-                            Button("断开") { gh.disconnect() }
+                            Button("断开".loc) { gh.disconnect() }
                                 .buttonStyle(.plain)
                                 .font(.system(size: 9)).foregroundStyle(P.hot)
                         }
@@ -2120,34 +2128,34 @@ struct SettingsView: View {
                 case .loading:
                     HStack(spacing: 6) {
                         ProgressView().controlSize(.small)
-                        Text("连接中…").font(.system(size: 10)).foregroundStyle(P.sub)
+                        Text("连接中…".loc).font(.system(size: 10)).foregroundStyle(P.sub)
                     }
                 case .failed(let e):
-                    Text("连接失败：\(e)").font(.system(size: 9.5)).foregroundStyle(P.hot)
+                    Text(lf("连接失败：%@", e)).font(.system(size: 9.5)).foregroundStyle(P.hot)
                         .fixedSize(horizontal: false, vertical: true)
                 case .notConfigured:
-                    Text("未连接").font(.system(size: 10)).foregroundStyle(P.faint)
+                    Text("未连接".loc).font(.system(size: 10)).foregroundStyle(P.faint)
                 }
 
                 deviceFlowSection
 
                 Divider().overlay(Color.white.opacity(0.08))
-                Text("高级：手动 Token").font(.system(size: 9)).foregroundStyle(P.faint)
-                SecureField("粘贴 Personal Access Token", text: $ghTokenInput)
+                Text("高级：手动 Token".loc).font(.system(size: 9)).foregroundStyle(P.faint)
+                SecureField("粘贴 Personal Access Token".loc, text: $ghTokenInput)
                     .textFieldStyle(.roundedBorder)
                     .font(.system(size: 10))
                 HStack {
-                    Button("连接") {
+                    Button("连接".loc) {
                         gh.setToken(ghTokenInput)
                         ghTokenInput = ""
                     }
                     .disabled(ghTokenInput.trimmingCharacters(in: .whitespaces).isEmpty)
                     .controlSize(.small)
-                    Button("刷新") { gh.refresh() }
+                    Button("刷新".loc) { gh.refresh() }
                         .controlSize(.small)
                     Spacer()
                 }
-                Text("凭证存入系统钥匙串，不落明文；授权记录显示为 GitHub CLI，可在 GitHub → Settings → Applications 随时撤销。")
+                Text("凭证存入系统钥匙串，不落明文；授权记录显示为 GitHub CLI，可在 GitHub → Settings → Applications 随时撤销。".loc)
                     .font(.system(size: 9)).foregroundStyle(P.faint)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -2165,7 +2173,7 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: "bolt.horizontal.fill").font(.system(size: 10))
-                        Text("一键连接 GitHub").font(.system(size: 11, weight: .semibold))
+                        Text("一键连接 GitHub".loc).font(.system(size: 11, weight: .semibold))
                     }
                     .foregroundStyle(P.text)
                     .frame(maxWidth: .infinity)
@@ -2174,13 +2182,13 @@ struct SettingsView: View {
                     .overlay(Capsule().strokeBorder(P.accent.opacity(0.6), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                Text("自动打开浏览器授权，无需手动创建 Token")
+                Text("自动打开浏览器授权，无需手动创建 Token".loc)
                     .font(.system(size: 9)).foregroundStyle(P.faint)
             }
         case .requesting:
             HStack(spacing: 6) {
                 ProgressView().controlSize(.small)
-                Text("正在获取授权码…").font(.system(size: 10)).foregroundStyle(P.sub)
+                Text("正在获取授权码…".loc).font(.system(size: 10)).foregroundStyle(P.sub)
             }
         case .waiting(let code):
             VStack(alignment: .leading, spacing: 5) {
@@ -2190,18 +2198,18 @@ struct SettingsView: View {
                         .foregroundStyle(P.hot)
                         .textSelection(.enabled)
                     Spacer()
-                    Button("取消") { gh.cancelDeviceFlow() }
+                    Button("取消".loc) { gh.cancelDeviceFlow() }
                         .buttonStyle(.plain)
                         .font(.system(size: 9)).foregroundStyle(P.sub)
                 }
-                Text("授权码已复制到剪贴板——在打开的 GitHub 页面粘贴并点击授权，完成后这里会自动连上")
+                Text("授权码已复制到剪贴板——在打开的 GitHub 页面粘贴并点击授权，完成后这里会自动连上".loc)
                     .font(.system(size: 9)).foregroundStyle(P.faint)
                     .fixedSize(horizontal: false, vertical: true)
             }
         case .failed(let e):
             VStack(alignment: .leading, spacing: 4) {
                 Text(e).font(.system(size: 9.5)).foregroundStyle(P.hot)
-                Button("重试") { gh.startDeviceFlow() }.controlSize(.small)
+                Button("重试".loc) { gh.startDeviceFlow() }.controlSize(.small)
             }
         }
     }
@@ -2211,12 +2219,12 @@ struct SettingsView: View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("模块光效").font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
+                    Text("模块光效".loc).font(.system(size: 11, weight: .semibold)).foregroundStyle(P.sub)
                     Spacer()
                     resetBtn { settings.effectsOff = [] }
                 }
                 fxChips()
-                Text("逐模块开关动态光效（闪烁 / 彗星 / 光点 / 光带 / 声呐）。「今日累计节奏」「5h窗柱状」对应主面板左侧图表；趋势页热力图跟随「90天热力图」")
+                Text("逐模块开关动态光效（闪烁 / 彗星 / 光点 / 光带 / 声呐）。「今日累计节奏」「5h窗柱状」对应主面板左侧图表；趋势页热力图跟随「90天热力图」".loc)
                     .font(.system(size: 9)).foregroundStyle(P.faint)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -2263,7 +2271,7 @@ struct SettingsView: View {
             HStack(spacing: 3) {
                 Image(systemName: "arrow.uturn.backward")
                     .font(.system(size: 8))
-                Text("恢复默认")
+                Text("恢复默认".loc)
                     .font(.system(size: 9, weight: .medium))
             }
             .foregroundStyle(P.accent2)

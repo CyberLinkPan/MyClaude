@@ -40,6 +40,7 @@ English | [简体中文](README.md)
 - **Themeable** — 8 presets + free color picking; ring / curves / heatmap gradients all derive automatically; adjustable glass tint
 - **GitHub device-flow login** — one click, authorize in the browser, token stored in the macOS Keychain
 - **Hover tooltips** — hover any module chip in Settings for a detailed explanation
+- **Bilingual UI** — switch between System / 中文 / English in Settings; every string and date format updates live
 
 ## 📸 Screenshots
 

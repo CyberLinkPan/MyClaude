@@ -117,7 +117,7 @@ final class GitHubStore: ObservableObject {
     private func deviceFlowBlocking() {
         do {
             guard let obj = try post("https://github.com/login/device/code",
-                                     body: "client_id=\(Self.clientID)&scope=repo%20read%3Auser") as? [String: Any],
+                                     body: "client_id=\(Self.clientID)&scope=repo%20read%3Auser%20workflow") as? [String: Any],
                   let userCode = obj["user_code"] as? String,
                   let deviceCode = obj["device_code"] as? String,
                   let uri = obj["verification_uri"] as? String
@@ -149,13 +149,13 @@ final class GitHubStore: ObservableObject {
                 }
                 switch r["error"] as? String {
                 case "slow_down": step += 5
-                case "expired_token": throw Err.flow("授权码已过期，请重试")
-                case "access_denied": throw Err.flow("你在网页上拒绝了授权")
+                case "expired_token": throw Err.flow("授权码已过期，请重试".loc)
+                case "access_denied": throw Err.flow("你在网页上拒绝了授权".loc)
                 default: break   // authorization_pending → 继续轮询
                 }
             }
             if flowCancelled { return }
-            throw Err.flow("等待授权超时，请重试")
+            throw Err.flow("等待授权超时，请重试".loc)
         } catch {
             let msg = (error as? Err)?.text ?? error.localizedDescription
             DispatchQueue.main.async { self.deviceFlow = .failed(msg) }
@@ -242,8 +242,8 @@ final class GitHubStore: ObservableObject {
         case http(Int), parse, flow(String)
         var text: String {
             switch self {
-            case .http(let c): return c == 401 ? "Token 无效或已过期" : "HTTP \(c)"
-            case .parse: return "响应解析失败"
+            case .http(let c): return c == 401 ? "Token 无效或已过期".loc : "HTTP \(c)"
+            case .parse: return "响应解析失败".loc
             case .flow(let s): return s
             }
         }

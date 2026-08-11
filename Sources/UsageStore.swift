@@ -110,6 +110,9 @@ final class SettingsStore: ObservableObject {
     @Published var effectsOff: [String] {        // 关闭光效的模块（默认空=全开）
         didSet { d.set(effectsOff, forKey: "effectsOff") }
     }
+    @Published var language: String {            // 界面语言：auto / zh / en
+        didSet { d.set(language, forKey: "language") }
+    }
 
     var dailyGoal: Double { dailyGoalM * 1_000_000 }
     var weeklyBudget: Double { weeklyBudgetB * 1_000_000_000 }
@@ -126,6 +129,7 @@ final class SettingsStore: ObservableObject {
         popoverModules = d.object(forKey: "popoverModules") as? [String] ?? Self.defaultPopoverModules
         dashboardModules = d.object(forKey: "dashboardModules") as? [String] ?? Self.defaultDashboardModules
         effectsOff = d.object(forKey: "effectsOff") as? [String] ?? []
+        language = d.object(forKey: "language") as? String ?? "auto"
     }
 
     static let defaultPopoverModules = ["ring", "goals", "heatmap"]
@@ -393,12 +397,18 @@ enum Fmt {
     }
     static func pct(_ x: Double) -> String { String(format: "%.0f%%", x * 100) }
     static func day(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "M月d日"; return f.string(from: d)
+        let f = DateFormatter()
+        if gIsEN { f.locale = Locale(identifier: "en_US"); f.dateFormat = "MMM d" }
+        else { f.dateFormat = "M月d日" }
+        return f.string(from: d)
     }
     static func hm(_ d: Date) -> String {
         let f = DateFormatter(); f.dateFormat = "HH:mm"; return f.string(from: d)
     }
     static func month(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "M月"; return f.string(from: d)
+        let f = DateFormatter()
+        if gIsEN { f.locale = Locale(identifier: "en_US"); f.dateFormat = "MMM" }
+        else { f.dateFormat = "M月" }
+        return f.string(from: d)
     }
 }
